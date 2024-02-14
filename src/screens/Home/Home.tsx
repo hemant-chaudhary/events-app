@@ -1,36 +1,44 @@
-import { Alert, Button, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { Button, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useAppSelector, useAppDispatch } from '../../hooks'
-import React, { useEffect, useState } from 'react';
-import { Event } from '../../types';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Event, HomePropsNavigation } from '../../types';
 import EventCard from '../../components/eventCard/eventCard';
 import { SIZES } from '../../constants';
 import styles from './HomeStyles';
 import EventList from '../../components/eventList/eventList';
-import { ScrollView } from 'react-native-gesture-handler';
 import UsernameModal from '../../components/usernameModal/usernameModal';
 import { resetUser } from '../../reducers/user';
-const viewType = ["List", "Grid"];
+import { useNavigation } from '@react-navigation/native';
 
-const Home = ({ navigation }: { navigation: any }) => {
+const Home = () => {
+  const viewType = ["List", "Grid"];
   const events = useAppSelector((state) => state.events)
   const dispatch = useAppDispatch()
+  const username = useAppSelector((state) => state.user.name);
+  const navigation = useNavigation<HomePropsNavigation>();
   const [activeViewType, setactiveViewType] = useState("List");
-  const username = useAppSelector((state) => state.user.name)
 
   const handleClick = (id: number) => {
-    const event: Array<Event> = events.filter((event) => event.id == id)
-    navigation.navigate('Details', {
-      event,
-    });
+    const filteredEvent: Array<Event> = events.filter((event: Event) => event.id == id)
+    navigation.navigate('Details', { event: filteredEvent[0] });
   }
+
+  const renderEventsList = useCallback(({ item }: { item: Event }) => (
+    <EventList event={item} handleClick={() => handleClick(item.id)} />
+  ), [])
+
+
+  const renderEventsGrid = useCallback(({ item }: { item: Event }) => (
+    <EventCard event={item} handleClick={() => handleClick(item.id)} />
+  ), [])
 
   const eventsList = () => {
     return (
       <View style={{ flex: 1 }}>
         <FlatList
           data={events}
-          key={"_"}
-          renderItem={({ item }) => <EventList event={item} handleClick={() => handleClick(item.id)} />}
+          key={'_'}
+          renderItem={renderEventsList}
           keyExtractor={(item: Event) => item.id + '_' + item.name}
           contentContainerStyle={{ columnGap: SIZES.medium }}
         />
@@ -44,7 +52,7 @@ const Home = ({ navigation }: { navigation: any }) => {
         <FlatList
           data={events}
           key={'#'}
-          renderItem={({ item }) => <EventCard event={item} handleClick={() => handleClick(item.id)} />}
+          renderItem={renderEventsGrid}
           keyExtractor={(item: Event) => item.id + '#' + item.name}
           numColumns={2}
           contentContainerStyle={{ columnGap: SIZES.medium }}
@@ -53,8 +61,20 @@ const Home = ({ navigation }: { navigation: any }) => {
     )
   }
 
-  useEffect(() => {
-  }, [])
+  const renderTabs = useCallback(({ item }: { item: string }) => (
+    <TouchableOpacity
+      style={styles.tab}
+      onPress={() => {
+        setactiveViewType(item);
+      }}
+    >
+      <Text>{item}</Text>
+    </TouchableOpacity>
+  ), [])
+
+  const navigateTrackingList = useCallback(() => navigation.navigate('UserTrackingList'), [])
+  const resetUserLocal = useCallback(() => dispatch(resetUser()), [])
+
   return (
     <>
       <View style={styles.tabsContainer}>
@@ -63,30 +83,18 @@ const Home = ({ navigation }: { navigation: any }) => {
           contentContainerStyle={{ columnGap: SIZES.small }}
           horizontal
           data={viewType}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.tab}
-              onPress={() => {
-                setactiveViewType(item);
-              }}
-            >
-              <Text>{item}</Text>
-            </TouchableOpacity>
-          )}
+          renderItem={renderTabs}
         />
       </View>
       {activeViewType === 'List' ? eventsList() : eventsGrid()}
       <View>
-        <Button title='change username' onPress={() => dispatch(resetUser())} />
+        <Button title='change username' onPress={resetUserLocal} />
       </View>
 
       <UsernameModal propUsername={username} />
 
       <Text>{username}</Text>
-      <Button title='Tracking page' onPress={() => navigation.navigate('UserTrackingList', {
-        itemId: 86,
-        otherParam: 'anything you want here',
-      })} />
+      <Button title='Tracking page' onPress={navigateTrackingList} />
     </>
 
   );

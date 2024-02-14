@@ -1,19 +1,21 @@
 import { Button, FlatList, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import { useAppSelector, useAppDispatch } from '../../hooks'
-import { useEffect, useState } from 'react';
-import { Event } from '../../types';
+import { useCallback, useEffect, useState } from 'react';
+import { Event, HomePropsNavigation } from '../../types';
 import EventCard from '../../components/eventCard/eventCard';
 import { SIZES } from '../../constants';
 import styles from './TrackingListStyle';
 import EventList from '../../components/eventList/eventList';
 import { ScrollView } from 'react-native-gesture-handler';
 import { deleteEvent } from '../../reducers/trackingList';
+import { useNavigation } from '@react-navigation/native';
 const viewType = ["List", "Grid"];
 
-const TrackingList = ({ navigation }: { navigation: any }) => {
+const TrackingList = () => {
     const trackingList = useAppSelector((state) => state.trackingList)
     const username = useAppSelector((state) => state.user.name)
-    const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch();
+    const navigation = useNavigation<HomePropsNavigation>();
     const [activeViewType, setactiveViewType] = useState("List");
     const [eventList, setEventList] = useState<Event[]>([]);
 
@@ -25,11 +27,18 @@ const TrackingList = ({ navigation }: { navigation: any }) => {
     }, [eventList, trackingList])
 
     const handleClick = (id: number) => {
-        const event: Event[] = eventList.filter((event) => event.id == id)
-        navigation.navigate('Details', {
-            event,
-        });
+        const filteredEvent: Array<Event> = eventList.filter((event: Event) => event.id == id)
+        navigation.navigate('Details', { event: filteredEvent[0] });
     }
+
+    const renderEventsList = useCallback(({ item }: { item: Event }) => (
+        <EventList showDelete={true} handleDelete={() => { dispatch(deleteEvent({ event: item, username })) }} event={item} handleClick={() => handleClick(item.id)} />
+    ), [])
+
+
+    const renderEventsGrid = useCallback(({ item }: { item: Event }) => (
+        <EventCard event={item} handleClick={() => handleClick(item.id)} />
+    ), [])
 
     const eventsList = () => {
         return (
@@ -37,7 +46,7 @@ const TrackingList = ({ navigation }: { navigation: any }) => {
                 <FlatList
                     data={eventList}
                     key={"_"}
-                    renderItem={({ item }) => <EventList showDelete={true} handleDelete={() => { console.log('deletd'); dispatch(deleteEvent({ event: item, username })) }} event={item} handleClick={() => handleClick(item.id)} />}
+                    renderItem={renderEventsList}
                     keyExtractor={(item: Event) => item.id + '_' + item.name}
                     contentContainerStyle={{ columnGap: SIZES.medium }}
                 />
@@ -51,7 +60,7 @@ const TrackingList = ({ navigation }: { navigation: any }) => {
                 <FlatList
                     data={eventList}
                     key={'#'}
-                    renderItem={({ item }) => <EventCard event={item} handleClick={() => handleClick(item.id)} />}
+                    renderItem={renderEventsGrid}
                     keyExtractor={(item: Event) => item.id + '#' + item.name}
                     numColumns={2}
                     contentContainerStyle={{ columnGap: SIZES.medium }}
@@ -59,6 +68,17 @@ const TrackingList = ({ navigation }: { navigation: any }) => {
             </View>
         )
     }
+
+    const renderTabs = useCallback(({ item }: { item: string }) => (
+        <TouchableOpacity
+            style={styles.tab}
+            onPress={() => {
+                setactiveViewType(item);
+            }}
+        >
+            <Text>{item}</Text>
+        </TouchableOpacity>
+    ), [])
 
     return (
         <>
@@ -68,16 +88,7 @@ const TrackingList = ({ navigation }: { navigation: any }) => {
                     contentContainerStyle={{ columnGap: SIZES.small }}
                     horizontal
                     data={viewType}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={styles.tab}
-                            onPress={() => {
-                                setactiveViewType(item);
-                            }}
-                        >
-                            <Text>{item}</Text>
-                        </TouchableOpacity>
-                    )}
+                    renderItem={renderTabs}
                 />
             </View>
             {activeViewType === 'List' ? eventsList() : eventsGrid()}

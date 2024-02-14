@@ -1,7 +1,6 @@
 import { View, Text, Image, SafeAreaView, ScrollView, TouchableHighlight, TouchableOpacity, Button } from "react-native"
 import { Event } from "../../types"
 import styles from "./eventListStyle"
-import { COLORS } from "../../constants"
 
 type EventListType = {
     event: Event;
@@ -12,7 +11,7 @@ type EventListType = {
 
 const EventList = ({ event, handleClick, handleDelete, showDelete }: EventListType) => {
     const ticketText = () => {
-        return <Text style={[styles.entry, { color: event.entry === 'paid' ? COLORS.primary : COLORS.secondary }]}>{event.entry}</Text>
+        return <Text style={[styles.entry, event.entry === 'paid' ? styles.paidEntry : styles.freeEntry]}>{event.entry}</Text>
     }
     return (
         <TouchableOpacity onPress={() => handleClick()} style={styles.container}>
@@ -24,11 +23,11 @@ const EventList = ({ event, handleClick, handleDelete, showDelete }: EventListTy
             <View style={styles.infoContainer}>
                 <View>
                     <Text>{event.name}</Text>
-                    <Text style={{ width: '50%' }} numberOfLines={2}>{event.location}</Text>
+                    <Text style={styles.location} numberOfLines={2}>{event.location}</Text>
                     {showDelete ? ticketText() : null}
                 </View>
                 {showDelete ? <View>
-                    <Button title="delete" color={'red'} onPress={() => { console.log('delete'); handleDelete ? handleDelete() : null }} />
+                    <Button title="delete" color={'red'} onPress={() => handleDelete ? handleDelete() : null} />
                 </View> : ticketText()}
             </View>
         </TouchableOpacity>

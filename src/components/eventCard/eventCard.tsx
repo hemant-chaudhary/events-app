@@ -20,7 +20,7 @@ const EventCard = ({ event, handleClick }: EventCardType) => {
                     <Text>{event.name}</Text>
                     <Text>{event.location}</Text>
                 </View>
-                <Text style={[styles.entry, { color: event.entry === 'paid' ? COLORS.primary : COLORS.secondary }]}>{event.entry}</Text>
+                <Text style={[styles.entry, event.entry === 'paid' ? styles.paidEntry : styles.freeEntry]}>{event.entry}</Text>
             </View>
         </TouchableOpacity>
     )

@@ -34,6 +34,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textTransform: 'capitalize',
   },
+  paidEntry: {
+    color: COLORS.primary,
+  },
+  freeEntry: {
+    color: COLORS.secondary,
+  },
 });
 
 export default styles;

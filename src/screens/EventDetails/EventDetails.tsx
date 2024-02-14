@@ -7,7 +7,7 @@ import { addEvent } from "../../reducers/trackingList";
 
 
 const EventDetails = ({ route }: { route: any }) => {
-    const event: Event = route.params.event[0];
+    const event: Event = route.params.event;
     const dispatch = useAppDispatch()
     const username = useAppSelector((state) => state.user.name)
 
@@ -21,7 +21,7 @@ const EventDetails = ({ route }: { route: any }) => {
             <View style={styles.infoContainer}>
                 <Text style={styles.eventName}>{event.name}</Text>
                 <Text style={styles.eventLocation}>{event.location}</Text>
-                <Text style={[styles.entry, { textAlign: 'center', color: event.entry === 'paid' ? COLORS.primary : COLORS.secondary }]}>{event.entry}</Text>
+                <Text style={[styles.entry, event.entry === 'paid' ? styles.paidEntry : styles.freeEntry]}>{event.entry}</Text>
             </View>
             <View style={styles.buttonContainer}>
                 <Button color={'black'} title="Track event" onPress={() => dispatch(addEvent({ username, event }))} />

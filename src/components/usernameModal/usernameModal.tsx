@@ -41,7 +41,7 @@ const usernameModal = ({ propUsername }: usernameModalType) => {
                     <View style={styles.modalView}>
                         <TextInput style={styles.input} value={username} placeholder='enter username' onChangeText={text => setUsername(text)} />
                         <Pressable disabled={username.length == 0}
-                            style={[styles.button, styles.buttonClose, username.length == 0 ? { backgroundColor: COLORS.gray } : {}]}
+                            style={[styles.button, styles.buttonClose, username.length ? styles.darkBackground : styles.lightBackground]}
                             onPress={() => setUsernameInRedux()}>
                             <Text style={styles.textStyle}>Done</Text>
                         </Pressable>

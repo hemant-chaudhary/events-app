@@ -12,7 +12,6 @@ export const trackerSlice = createSlice({
   initialState,
   reducers: {
     addEvent: (state, action) => {
-      let newUser: boolean = false;
       if (state.length) {
         let eventAdded = false;
         state.map(obj => {
@@ -53,7 +52,6 @@ export const trackerSlice = createSlice({
       }
     },
     deleteEvent: (state, action) => {
-      console.log(action);
       state.map(userTracker => {
         if ((userTracker.name = action.payload.username)) {
           userTracker.trackingEvents = userTracker.trackingEvents.filter(

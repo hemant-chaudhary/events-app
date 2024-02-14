@@ -42,6 +42,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 30,
   },
+  paidEntry: {
+    color: COLORS.primary,
+  },
+  freeEntry: {
+    color: COLORS.secondary,
+  },
 });
 
 export default styles;

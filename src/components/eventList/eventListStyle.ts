@@ -31,10 +31,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  location: {
+    width: '50%',
+  },
   entry: {
     fontSize: 18,
     fontWeight: 'bold',
     textTransform: 'capitalize',
+  },
+  paidEntry: {
+    color: COLORS.primary,
+  },
+  freeEntry: {
+    color: COLORS.secondary,
   },
 });
 
